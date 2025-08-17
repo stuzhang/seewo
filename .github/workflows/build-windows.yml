@@ -34,13 +34,9 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
     
-    # 构建前端应用
-    - name: Build frontend
-      run: pnpm run build
-    
-    # 打包Electron应用
+    # 构建并打包Electron应用
     - name: Build Electron app for Windows
-      run: pnpm run electron:build
+      run: pnpm run dist:win
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
