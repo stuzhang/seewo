@@ -1,33 +1,12 @@
 name: Build Windows App
 
-# 触发条件
+# 触发条件：推送到main分支或手动触发
 on:
-  # 手动触发
-  workflow_dispatch:
-    inputs:
-      version:
-        description: '版本号 (例如: 1.0.0)'
-        required: false
-        default: '1.0.0'
-        type: string
-  
-  # 推送到main分支时触发
   push:
     branches: [ main ]
-    paths:
-      - 'src/**'
-      - 'electron/**'
-      - 'package.json'
-      - 'vite.config.ts'
-  
-  # PR到main分支时触发
   pull_request:
     branches: [ main ]
-
-# 环境变量
-env:
-  NODE_VERSION: '18'
-  PNPM_VERSION: '8'
+  workflow_dispatch:
 
 jobs:
   build-windows:
@@ -37,21 +16,19 @@ jobs:
     # 检出代码
     - name: Checkout code
       uses: actions/checkout@v4
+    
+    # 安装pnpm
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
       with:
-        fetch-depth: 0
+        version: 8
     
     # 设置Node.js环境
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-    
-    # 安装pnpm
-    - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: ${{ env.PNPM_VERSION }}
+        node-version: '18'
+        cache: 'pnpm'
     
     # 安装依赖
     - name: Install dependencies
@@ -61,49 +38,33 @@ jobs:
     - name: Build frontend
       run: pnpm run build
     
-    # 构建Electron应用
-    - name: Build Electron app
+    # 打包Electron应用
+    - name: Build Electron app for Windows
       run: pnpm run electron:build
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     # 上传构建产物
-    - name: Upload artifacts
+    - name: Upload Windows artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: windows-build-${{ github.sha }}
+        name: windows-app
         path: |
           dist-electron/*.exe
           dist-electron/*.msi
-          dist-electron/*.zip
         retention-days: 30
     
-    # 创建Release（仅在手动触发或推送tag时）
+    # 创建Release（仅在推送到main分支时）
     - name: Create Release
-      if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: v${{ github.event.inputs.version || '1.0.0' }}
-        name: Release v${{ github.event.inputs.version || '1.0.0' }}
-        body: |
-          ## 🚀 新版本发布
-          
-          ### 📦 下载
-          - Windows 安装包: `*.exe`
-          - Windows MSI 安装包: `*.msi`
-          - Windows 便携版: `*.zip`
-          
-          ### 🔧 系统要求
-          - Windows 10 或更高版本
-          - .NET Framework 4.7.2 或更高版本
-          
-          ### 📝 更新内容
-          请查看提交历史了解详细更新内容。
+        tag_name: v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
+        draft: false
+        prerelease: false
         files: |
           dist-electron/*.exe
           dist-electron/*.msi
-          dist-electron/*.zip
-        draft: false
-        prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
