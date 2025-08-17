@@ -1,0 +1,70 @@
+name: Build Windows App
+
+# 触发条件：推送到main分支或手动触发
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    # 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # 设置Node.js环境
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    # 安装pnpm
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+    
+    # 安装依赖
+    - name: Install dependencies
+      run: pnpm install
+    
+    # 构建前端应用
+    - name: Build frontend
+      run: pnpm run build
+    
+    # 打包Electron应用
+    - name: Build Electron app for Windows
+      run: pnpm run electron:build
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    # 上传构建产物
+    - name: Upload Windows artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-app
+        path: |
+          dist-electron/*.exe
+          dist-electron/*.msi
+        retention-days: 30
+    
+    # 创建Release（仅在推送到main分支时）
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
+        draft: false
+        prerelease: false
+        files: |
+          dist-electron/*.exe
+          dist-electron/*.msi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
