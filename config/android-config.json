@@ -1,43 +1,19 @@
 {
-  "androidVersion": "Android 14",
-  "kernelVersion": "4.19.157-seewo",
-  "totalRAM": 16340,
-  "availableRAM": 13825,
-  "totalROM": 131072,
-  "availableROM": 85000,
-  "deviceModel": "Seewo Board Pro",
-  "buildNumber": "SeewoOS_V2.1.0_20250525",
-  "securityPatch": "2025-04-05",
+  "androidVersion": "Android 11",
   "apiLevel": 30,
+  "securityPatch": "2023-10-01",
+  "kernelVersion": "4.19.157-android11-9-00001-g1234567890ab",
+  "buildTime": "2023-10-15 14:30:25",
+  "deviceModel": "Seewo Board Pro",
   "manufacturer": "Seewo",
-  "brand": "Seewo",
-  "hardware": "rk3588",
-  "bootloader": "U-Boot 2017.09",
-  "fingerprint": "Seewo/seewo_board/seewo_board:11/RP1A.200720.011/V2.1.0:user/release-keys",
-  "lastUpdated": "2024-01-15T10:30:00Z",
-  "productName": "希沃第六代智慧交互黑板",
-  
-  "features": {
-    "touchScreen": true,
-    "multiTouch": true,
-    "wifi": true,
-    "bluetooth": true,
-    "camera": true,
-    "microphone": true,
-    "speakers": true,
-    "hdmi": true,
-    "usb": true,
-    "ethernet": true
-  },
-  "display": {
-    "resolution": "3840x2160",
-    "density": 320,
-    "refreshRate": 60,
-    "size": "86 inch"
-  },
-  "network": {
-    "wifiEnabled": true,
-    "bluetoothEnabled": true,
-    "ethernetEnabled": true
-  }
+  "productName": "SeewoBoard",
+  "processor": "Qualcomm Snapdragon 8cx Gen 3",
+  "totalRAM": 8192,
+  "availableRAM": 6144,
+  "totalROM": 128000,
+  "availableROM": 96000,
+  "screenDensity": 320,
+  "wifiStatus": "connected",
+  "bluetoothStatus": "enabled",
+  "lastUpdated": "2023-10-15T14:30:25.000Z"
 }
