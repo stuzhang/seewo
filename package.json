@@ -1,83 +1,73 @@
 {
-  "name": "seewo-touch-screen-management",
+  "name": "seewo",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "description": "Seewo希沃设备信息工具",
+  "author": "Seewo",
   "type": "module",
-  "description": "希沃触控一体机管理系统 - 专业的触控一体机系统信息管理工具",
-  "author": "希沃团队",
-  "license": "MIT",
-  "keywords": [
-    "seewo",
-    "touch-screen",
-    "management",
-    "electron",
-    "react",
-    "typescript",
-    "system-info"
-  ],
-  "main": "dist-electron/main.js",
-  "homepage": "./",
+  "main": "electron/main.js",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "client:dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
     "preview": "vite preview",
-    "electron:dev": "concurrently \"pnpm run dev\" \"wait-on http://localhost:5173 && electron .\"",
-    "electron:pack": "electron-builder",
-    "electron:build": "pnpm run build && electron-builder",
-    "electron:build:win": "pnpm run build && electron-builder --win",
-    "electron:build:mac": "pnpm run build && electron-builder --mac",
-    "electron:build:linux": "pnpm run build && electron-builder --linux",
-    "api:dev": "nodemon",
-    "api:build": "tsc api/server.ts --outDir dist-api",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "type-check": "tsc --noEmit",
-    "clean": "rimraf dist dist-electron dist-api node_modules/.vite",
-    "postinstall": "electron-builder install-app-deps"
+    "check": "tsc --noEmit",
+    "server:dev": "nodemon",
+    "dev": "concurrently \"npm run client:dev\" \"npm run server:dev\"",
+    "electron:dev": "electron .",
+    "electron:build": "electron-builder",
+    "electron:build:win": "electron-builder --win",
+    "electron:build:mac": "electron-builder --mac",
+    "electron:build:linux": "electron-builder --linux",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "lucide-react": "^0.263.1",
-    "clsx": "^2.0.0",
-    "tailwind-merge": "^1.14.0"
+    "clsx": "^2.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "lucide-react": "^0.511.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.3.0",
+    "tailwind-merge": "^3.0.2",
+    "zustand": "^5.0.3",
+    "express": "^4.21.2",
+    "systeminformation": "^5.23.5"
   },
   "devDependencies": {
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
-    "@types/node": "^20.5.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "@vitejs/plugin-react": "^4.0.3",
-    "autoprefixer": "^10.4.14",
-    "concurrently": "^8.2.0",
-    "electron": "^25.3.1",
-    "electron-builder": "^24.6.3",
-    "eslint": "^8.45.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.3",
-    "postcss": "^8.4.27",
-    "prettier": "^3.0.0",
-    "rimraf": "^5.0.1",
-    "tailwindcss": "^3.3.3",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vitest": "^0.34.1",
-    "wait-on": "^7.0.1",
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "@types/express": "^4.17.17",
-    "@types/cors": "^2.8.13",
-    "tsx": "^3.12.7",
-    "nodemon": "^3.0.1"
+    "@eslint/js": "^9.25.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.15.30",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.4.1",
+    "@vercel/node": "^5.3.6",
+    "autoprefixer": "^10.4.21",
+    "babel-plugin-react-dev-locator": "^1.0.0",
+    "concurrently": "^9.2.0",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "nodemon": "^3.1.10",
+    "tsx": "^4.20.3",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5",
+
+    "vite-tsconfig-paths": "^5.1.4",
+    "electron": "^33.2.1",
+    "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.seewo.touch-screen-management",
-    "productName": "希沃触控一体机管理系统",
+    "appId": "com.seewo.app",
+    "productName": "Seewo希沃设备信息工具",
     "directories": {
       "output": "dist-electron"
     },
@@ -85,79 +75,46 @@
       "dist/**/*",
       "electron/**/*",
       "config/**/*",
-      "node_modules/**/*",
-      "package.json"
+      "node_modules/**/*"
     ],
     "extraResources": [
       {
         "from": "config",
-        "to": "config",
-        "filter": ["**/*"]
+        "to": "config"
       }
     ],
+    "icon": "build/icons/mac/icon.icns",
     "mac": {
       "category": "public.app-category.utilities",
+      "icon": "build/icons/mac/icon.icns",
       "target": [
         {
           "target": "dmg",
           "arch": ["x64", "arm64"]
-        },
-        {
-          "target": "zip",
-          "arch": ["x64", "arm64"]
         }
-      ],
-      "icon": "public/icon.icns"
+      ]
     },
     "win": {
+      "icon": "build/icons/win/icon.ico",
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64", "ia32"]
-        },
-        {
-          "target": "portable",
-          "arch": ["x64", "ia32"]
+          "arch": ["x64"]
         }
-      ],
-      "icon": "public/icon.ico"
+      ]
     },
     "linux": {
+      "icon": "build/icons/linux/icon_512x512.png",
       "target": [
         {
           "target": "AppImage",
           "arch": ["x64"]
-        },
-        {
-          "target": "deb",
-          "arch": ["x64"]
         }
-      ],
-      "icon": "public/icon.png",
-      "category": "Utility"
+      ]
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "希沃触控一体机管理系统"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "stuzhang",
-      "repo": "seewo"
+      "allowToChangeInstallationDirectory": true
     }
-  },
-  "engines": {
-    "node": ">=16.0.0",
-    "pnpm": ">=7.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/stuzhang/seewo.git"
-  },
-  "bugs": {
-    "url": "https://github.com/stuzhang/seewo/issues"
   }
 }

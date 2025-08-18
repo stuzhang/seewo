@@ -1,153 +1,409 @@
 /**
- * 配置服务
- * 负责加载和管理应用配置
+ * 配置文件读取服务
+ * 统一管理配置数据的加载和缓存
  */
 
-/**
- * 配置文件类型
- */
-export type ConfigType = 'android' | 'device' | 'windows'
+// 配置数据类型定义
+export interface WindowsConfig {
+  system: {
+    os: {
+      platform: string;
+      distro: string;
+      release: string;
+      codename: string;
+      kernel: string;
+      arch: string;
+      hostname: string;
+      fqdn: string;
+      codepage: string;
+      logofile: string;
+      serial: string;
+      build: string;
+      servicepack: string;
+      uefi: boolean;
+    };
+    cpu: {
+      manufacturer: string;
+      brand: string;
+      vendor: string;
+      family: string;
+      model: string;
+      stepping: string;
+      revision: string;
+      voltage: string;
+      speed: number;
+      speedMin: number;
+      speedMax: number;
+      governor: string;
+      cores: number;
+      physicalCores: number;
+      processors: number;
+      socket: string;
+      flags: string;
+      virtualization: boolean;
+      cache: {
+        l1d: number;
+        l1i: number;
+        l2: number;
+        l3: number;
+      };
+    };
+    memory: {
+      total: number;
+      free: number;
+      used: number;
+      active: number;
+      available: number;
+      buffers: number;
+      cached: number;
+      slab: number;
+      buffcache: number;
+      swaptotal: number;
+      swapused: number;
+      swapfree: number;
+    };
+    disks: Array<{
+      device: string;
+      type: string;
+      size: number;
+      used: number;
+      available: number;
+      use: number;
+      mount: string;
+    }>;
+    network: Array<{
+      iface: string;
+      ifaceName: string;
+      ip4: string;
+      ip4subnet: string;
+      ip6: string;
+      ip6subnet: string;
+      mac: string;
+      internal: boolean;
+      virtual: boolean;
+      operstate: string;
+      type: string;
+      duplex: string;
+      mtu: number;
+      speed: number;
+      dhcp: boolean;
+      dnsSuffix: string;
+      ieee8021xAuth: string;
+      ieee8021xState: string;
+    }>;
+    performance: {
+      cpuUsage: number;
+      memoryUsage: number;
+      diskUsage: number;
+      networkRx: number;
+      networkTx: number;
+      temperature: number;
+      fanSpeed: number;
+      powerState: string;
+      uptime: number;
+    };
+  };
+}
+
+export interface AndroidConfig {
+  androidVersion: string;
+  kernelVersion: string;
+  totalRAM: number;
+  availableRAM: number;
+  totalROM: number;
+  availableROM: number;
+  deviceModel: string;
+  buildNumber: string;
+  securityPatch: string;
+  apiLevel: number;
+  manufacturer: string;
+  brand: string;
+  hardware: string;
+  bootloader: string;
+  fingerprint: string;
+  lastUpdated: string;
+  productName: string;
+  features: {
+    touchScreen: boolean;
+    multiTouch: boolean;
+    wifi: boolean;
+    bluetooth: boolean;
+    camera: boolean;
+    microphone: boolean;
+    speakers: boolean;
+    hdmi: boolean;
+    usb: boolean;
+    ethernet: boolean;
+  };
+  display: {
+    resolution: string;
+    density: number;
+    refreshRate: number;
+    size: string;
+  };
+  network: {
+    wifiEnabled: boolean;
+    bluetoothEnabled: boolean;
+    ethernetEnabled: boolean;
+  };
+}
+
+export interface DeviceConfig {
+  device: {
+    brand: string;
+    model: string;
+    series: string;
+    type: string;
+    serialNumber: string;
+    manufacturingDate: string;
+    warrantyExpiry: string;
+  };
+  display: {
+    size: string;
+    resolution: string;
+    aspectRatio: string;
+    brightness: string;
+    contrast: string;
+    refreshRate: string;
+    touchPoints: number;
+    touchTechnology: string;
+    responseTime: string;
+    viewingAngle: string;
+    colorGamut: string;
+    backlight: string;
+    antiGlare: boolean;
+    blueLight: string;
+  };
+  videoStation: {
+    model: string;
+    brand: string;
+    resolution: string;
+    zoom: string;
+    focus: string;
+    interface: string;
+    compatibility: string[];
+    features: string[];
+    status: string;
+  };
+  audio: {
+    speakers: {
+      model: string;
+      brand: string;
+      power: string;
+      frequency: string;
+      impedance: string;
+      sensitivity: string;
+      type: string;
+      position: string;
+    };
+    microphone: {
+      type: string;
+      channels: number;
+      pickupRange: string;
+      noiseReduction: boolean;
+      echoCancellation: boolean;
+    };
+  };
+  connectivity: {
+    wifi: {
+      status: string;
+      standard: string;
+      frequency: string;
+      speed: string;
+      security: string;
+    };
+    bluetooth: {
+      status: string;
+      version: string;
+      range: string;
+      profiles: string[];
+    };
+    ethernet: {
+      status: string;
+      speed: string;
+      duplex: string;
+      cable: string;
+    };
+    usb: {
+      ports: number;
+      usb3: number;
+      usb2: number;
+      typeC: number;
+    };
+    hdmi: {
+      inputs: number;
+      outputs: number;
+      version: string;
+      resolution: string;
+    };
+    vga: {
+      inputs: number;
+      resolution: string;
+    };
+  };
+  power: {
+    consumption: string;
+    standby: string;
+    voltage: string;
+    frequency: string;
+    powerSaving: boolean;
+    autoShutdown: string;
+  };
+  environmental: {
+    operatingTemp: string;
+    storageTemp: string;
+    humidity: string;
+    altitude: string;
+    certification: string[];
+  };
+  software: {
+    os: string;
+    version: string;
+    kernel: string;
+    preInstalled: string[];
+    updateChannel: string;
+    lastUpdate: string;
+  };
+  status: {
+    overall: string;
+    temperature: string;
+    uptime: string;
+    lastMaintenance: string;
+    nextMaintenance: string;
+    errors: string[];
+    warnings: string[];
+  };
+}
 
 /**
  * 配置服务类
+ * 负责加载和缓存配置文件数据
  */
-export class ConfigService {
-  private static instance: ConfigService
-  private configCache = new Map<string, any>()
+class ConfigService {
+  private windowsConfig: WindowsConfig | null = null;
+  private androidConfig: AndroidConfig | null = null;
+  private deviceConfig: DeviceConfig | null = null;
 
   /**
-   * 获取配置服务单例实例
-   * @returns ConfigService实例
+   * 加载Windows配置文件
    */
-  public static getInstance(): ConfigService {
-    if (!ConfigService.instance) {
-      ConfigService.instance = new ConfigService()
-    }
-    return ConfigService.instance
-  }
-
-  /**
-   * 加载配置文件
-   * @param configType - 配置类型
-   * @returns 配置数据
-   */
-  public async loadConfig(configType: ConfigType): Promise<any> {
-    const cacheKey = `config_${configType}`
-    
-    // 检查缓存
-    if (this.configCache.has(cacheKey)) {
-      return this.configCache.get(cacheKey)
+  async loadWindowsConfig(): Promise<WindowsConfig> {
+    if (this.windowsConfig) {
+      return this.windowsConfig;
     }
 
     try {
-      let configData: any
-
       // 检查是否在Electron环境中
       if (window.electronAPI) {
-        // Electron环境：通过IPC获取配置
-        const configPath = `config/${configType}-config.json`
-        configData = await window.electronAPI.getConfigFile(configPath)
+        this.windowsConfig = await window.electronAPI.getConfigFile('windows-config');
       } else {
-        // Web环境：通过HTTP请求获取配置
-        const response = await fetch(`/config/${configType}-config.json`)
+        // Web环境下使用fetch
+        const response = await fetch('/config/windows-config.json');
         if (!response.ok) {
-          throw new Error(`Failed to load ${configType} config: ${response.statusText}`)
+          throw new Error(`Failed to load Windows config: ${response.statusText}`);
         }
-        configData = await response.json()
+        this.windowsConfig = await response.json();
       }
-
-      // 缓存配置数据
-      this.configCache.set(cacheKey, configData)
-      
-      return configData
+      return this.windowsConfig;
     } catch (error) {
-      console.error(`Error loading ${configType} config:`, error)
-      throw error
+      console.error('Error loading Windows config:', error);
+      throw error;
     }
   }
 
   /**
-   * 加载Android配置
-   * @returns Android配置数据
+   * 加载Android配置文件
    */
-  public async loadAndroidConfig(): Promise<any> {
-    return this.loadConfig('android')
-  }
+  async loadAndroidConfig(): Promise<AndroidConfig> {
+    if (this.androidConfig) {
+      return this.androidConfig;
+    }
 
-  /**
-   * 加载设备配置
-   * @returns 设备配置数据
-   */
-  public async loadDeviceConfig(): Promise<any> {
-    return this.loadConfig('device')
-  }
-
-  /**
-   * 加载Windows配置
-   * @returns Windows配置数据
-   */
-  public async loadWindowsConfig(): Promise<any> {
-    return this.loadConfig('windows')
-  }
-
-  /**
-   * 清除配置缓存
-   * @param configType - 可选的配置类型，如果不提供则清除所有缓存
-   */
-  public clearCache(configType?: ConfigType): void {
-    if (configType) {
-      const cacheKey = `config_${configType}`
-      this.configCache.delete(cacheKey)
-    } else {
-      this.configCache.clear()
+    try {
+      // 检查是否在Electron环境中
+      if (window.electronAPI) {
+        this.androidConfig = await window.electronAPI.getConfigFile('android-config');
+      } else {
+        // Web环境下使用fetch
+        const response = await fetch('/config/android-config.json');
+        if (!response.ok) {
+          throw new Error(`Failed to load Android config: ${response.statusText}`);
+        }
+        this.androidConfig = await response.json();
+      }
+      return this.androidConfig;
+    } catch (error) {
+      console.error('Error loading Android config:', error);
+      throw error;
     }
   }
 
   /**
-   * 重新加载配置
-   * @param configType - 配置类型
-   * @returns 配置数据
+   * 加载设备配置文件
    */
-  public async reloadConfig(configType: ConfigType): Promise<any> {
-    this.clearCache(configType)
-    return this.loadConfig(configType)
+  async loadDeviceConfig(): Promise<DeviceConfig> {
+    if (this.deviceConfig) {
+      return this.deviceConfig;
+    }
+
+    try {
+      // 检查是否在Electron环境中
+      if (window.electronAPI) {
+        this.deviceConfig = await window.electronAPI.getConfigFile('device-config');
+      } else {
+        // Web环境下使用fetch
+        const response = await fetch('/config/device-config.json');
+        if (!response.ok) {
+          throw new Error(`Failed to load Device config: ${response.statusText}`);
+        }
+        this.deviceConfig = await response.json();
+      }
+      return this.deviceConfig;
+    } catch (error) {
+      console.error('Error loading Device config:', error);
+      throw error;
+    }
   }
 
   /**
-   * 获取所有配置
-   * @returns 所有配置数据
+   * 获取实时性能数据（模拟数据，可以根据需要调整）
    */
-  public async loadAllConfigs(): Promise<{
-    android: any
-    device: any
-    windows: any
-  }> {
-    const [android, device, windows] = await Promise.all([
+  getRealtimePerformance() {
+    return {
+      cpuUsage: Math.random() * 30 + 20, // 20-50%
+      memoryUsage: Math.random() * 20 + 40, // 40-60%
+      diskUsage: Math.random() * 10 + 55, // 55-65%
+      networkRx: Math.random() * 1000000 + 500000, // 0.5-1.5MB/s
+      networkTx: Math.random() * 500000 + 250000, // 0.25-0.75MB/s
+      temperature: Math.random() * 10 + 40, // 40-50°C
+      fanSpeed: Math.random() * 200 + 1100, // 1100-1300 RPM
+      powerState: '运行中',
+      uptime: Date.now() / 1000 // 当前运行时间（秒）
+    };
+  }
+
+  /**
+   * 清除缓存
+   */
+  clearCache() {
+    this.windowsConfig = null;
+    this.androidConfig = null;
+    this.deviceConfig = null;
+  }
+
+  /**
+   * 重新加载所有配置
+   */
+  async reloadAll() {
+    this.clearCache();
+    await Promise.all([
+      this.loadWindowsConfig(),
       this.loadAndroidConfig(),
-      this.loadDeviceConfig(),
-      this.loadWindowsConfig()
-    ])
-
-    return { android, device, windows }
-  }
-
-  /**
-   * 检查配置是否已缓存
-   * @param configType - 配置类型
-   * @returns 是否已缓存
-   */
-  public isCached(configType: ConfigType): boolean {
-    const cacheKey = `config_${configType}`
-    return this.configCache.has(cacheKey)
-  }
-
-  /**
-   * 获取缓存的配置（不会触发加载）
-   * @param configType - 配置类型
-   * @returns 缓存的配置数据或undefined
-   */
-  public getCachedConfig(configType: ConfigType): any | undefined {
-    const cacheKey = `config_${configType}`
-    return this.configCache.get(cacheKey)
+      this.loadDeviceConfig()
+    ]);
   }
 }
+
+// 导出单例实例
+export const configService = new ConfigService();
+export default configService;

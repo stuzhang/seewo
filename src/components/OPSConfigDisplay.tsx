@@ -8,11 +8,11 @@ interface OPSConfigDisplayProps {
 
 /**
  * OPS配置显示组件
- * 显示Windows系统的硬件配置信息
+ * 显示Windows系统的详细硬件配置信息
  */
 export default function OPSConfigDisplay({ windowsConfig, performance }: OPSConfigDisplayProps) {
   /**
-   * 格式化内存大小
+   * 格式化内存大小显示
    */
   const formatMemorySize = (bytes: number): string => {
     const gb = bytes / (1024 * 1024 * 1024);
@@ -20,27 +20,26 @@ export default function OPSConfigDisplay({ windowsConfig, performance }: OPSConf
   };
 
   /**
-   * 格式化磁盘大小
+   * 格式化磁盘大小显示
    */
   const formatDiskSize = (bytes: number): string => {
-    const gb = bytes / (1024 * 1024 * 1024);
-    if (gb >= 1024) {
-      return `${(gb / 1024).toFixed(1)}TB`;
+    const tb = bytes / (1024 * 1024 * 1024 * 1024);
+    if (tb >= 1) {
+      return `${tb.toFixed(1)}TB`;
     }
+    const gb = bytes / (1024 * 1024 * 1024);
     return `${gb.toFixed(0)}GB`;
   };
 
   /**
-   * 格式化存储大小
+   * 格式化存储大小显示
    */
-  const formatStorageSize = (bytes: number | string): string => {
-    if (typeof bytes === 'string') {
-      return bytes;
+  const formatStorageSize = (bytes: number): string => {
+    const tb = bytes / (1024 * 1024 * 1024 * 1024);
+    if (tb >= 1) {
+      return `${tb.toFixed(1)}TB`;
     }
     const gb = bytes / (1024 * 1024 * 1024);
-    if (gb >= 1024) {
-      return `${(gb / 1024).toFixed(1)}TB`;
-    }
     return `${gb.toFixed(0)}GB`;
   };
 
@@ -48,13 +47,7 @@ export default function OPSConfigDisplay({ windowsConfig, performance }: OPSConf
    * 获取连接状态文本
    */
   const getConnectionStatusText = (status: string): string => {
-    const statusMap: { [key: string]: string } = {
-      'connected': '已连接',
-      'disconnected': '未连接',
-      'up': '已连接',
-      'down': '未连接'
-    };
-    return statusMap[status] || status;
+    return status === 'connected' ? '已连接' : '未连接';
   };
 
   /**
@@ -143,7 +136,7 @@ export default function OPSConfigDisplay({ windowsConfig, performance }: OPSConf
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/80">基础频率</span>
+                <span className="text-white/80">最大频率</span>
                 <span className="text-white font-medium">
                   {windowsConfig?.system.cpu.speed || '3.7'} GHz
                 </span>
@@ -188,15 +181,13 @@ export default function OPSConfigDisplay({ windowsConfig, performance }: OPSConf
               <div className="flex justify-between">
                 <span className="text-white/80">可用内存</span>
                 <span className="text-white font-medium text-green-400">
-                  {windowsConfig ? formatMemorySize(windowsConfig.system.memory.available) : '15GB'}
+                  {windowsConfig && performance ? 
+                    formatMemorySize(windowsConfig.system.memory.total * (100 - performance.memoryUsage) / 100) : 
+                    '15GB'
+                  }
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-white/80">使用率</span>
-                <span className="text-white font-medium">
-                  {windowsConfig ? `${((windowsConfig.system.memory.used / windowsConfig.system.memory.total) * 100).toFixed(1)}%` : '53%'}
-                </span>
-              </div>
+
               {performance && (
                 <div className="flex justify-between items-center">
                   <span className="text-white/80">使用率</span>
@@ -235,7 +226,7 @@ export default function OPSConfigDisplay({ windowsConfig, performance }: OPSConf
                 <div key={index} className="bg-white/5 rounded p-3">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-white font-medium">{disk.device}</span>
-                    <span className="text-white/80 text-sm">{disk.size}</span>
+                    <span className="text-white/80 text-sm">{formatStorageSize(disk.size)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-white/60">{disk.type}</span>
@@ -364,7 +355,7 @@ export default function OPSConfigDisplay({ windowsConfig, performance }: OPSConf
               <div className="flex justify-between">
                 <span className="text-white/80">CPU温度</span>
                 <span className="text-white font-medium">
-                  {performance?.temperature ? `${performance.temperature}°C` : '正常'}
+                  {performance?.temperature ? `${performance.temperature.toFixed(1)}°C` : '正常'}
                 </span>
               </div>
               <div className="flex justify-between">

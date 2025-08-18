@@ -91,6 +91,12 @@ export interface ElectronAPI {
   getConfigFile: (configName: string) => Promise<any>;
   onSystemInfoUpdate: (callback: (event: any, data: SystemInfoResponse) => void) => void;
   removeSystemInfoListener: (callback: (event: any, data: SystemInfoResponse) => void) => void;
+  windowControls: {
+    minimize: () => Promise<void>;
+    maximize: () => Promise<void>;
+    close: () => Promise<void>;
+    isMaximized: () => Promise<boolean>;
+  };
 }
 
 export interface PlatformAPI {
@@ -99,7 +105,7 @@ export interface PlatformAPI {
   isDev: () => boolean;
 }
 
-// 全局类型声明
+// 全局Window接口扩展
 declare global {
   interface Window {
     electronAPI: ElectronAPI;

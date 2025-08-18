@@ -1,27 +1,132 @@
 {
-  "deviceInfo": {
-    "productModel": "Seewo Board Pro 86",
-    "screenSize": "86英寸",
-    "resolution": "3840×2160 (4K UHD)",
-    "touchTechnology": "红外触控技术",
-    "logo": "/logo/logo.svg"
+  "device": {
+    "brand": "希沃",
+    "model": "BG86ER",
+    "series": "希沃智慧交互黑板",
+    "type": "Interactive Flat Panel",
+    "serialNumber": "SW2024010001",
+    "manufacturingDate": "2024-01-15",
+    "warrantyExpiry": "2027-01-15"
   },
-  "peripherals": {
-    "videoStand": {
-      "model": "Seewo VS-Pro",
-      "status": "connected"
-    },
-    "audioSystem": {
-      "model": "Seewo Audio Pro",
-      "status": "connected"
+  "display": {
+    "size": "86英寸",
+    "resolution": "3840×2160",
+    "aspectRatio": "16:9",
+    "brightness": "400 cd/m²",
+    "contrast": "4000:1",
+    "refreshRate": "60Hz",
+    "touchPoints": 20,
+    "touchTechnology": "电容触控",
+    "responseTime": "8ms",
+    "viewingAngle": "178°",
+    "colorGamut": "72% NTSC",
+    "backlight": "LED",
+    "antiGlare": true,
+    "blueLight": "低蓝光护眼"
+  },
+  "videoStation": {
+    "model": "Seewo 视频展台 SC06",
+    "brand": "希沃",
+    "resolution": "1080P",
+    "zoom": "8倍光学变焦",
+    "focus": "自动对焦",
+    "interface": "USB 3.0",
+    "compatibility": ["Windows", "macOS", "Android"],
+    "features": ["实物展示", "文档扫描", "视频录制"],
+    "status": "已连接"
+  },
+  "audio": {
+    "speakers": {
+      "model": "Seewo 智慧音响 SS33B",
+      "brand": "希沃",
+      "power": "20W × 2",
+      "frequency": "80Hz-20KHz",
+      "impedance": "8Ω",
+      "sensitivity": "85dB",
+      "type": "全频扬声器",
+      "position": "前置"
     },
     "microphone": {
-      "model": "内置麦克风阵列",
-      "status": "active"
-    },
-    "camera": {
-      "model": "Seewo Cam Pro 4K",
-      "status": "connected"
+      "type": "阵列麦克风",
+      "channels": 4,
+      "pickupRange": "5米",
+      "noiseReduction": true,
+      "echoCancellation": true
     }
+  },
+  "connectivity": {
+    "wifi": {
+      "status": "已连接",
+      "standard": "802.11ac",
+      "frequency": "2.4GHz/5GHz",
+      "speed": "300Mbps",
+      "security": "WPA2"
+    },
+    "bluetooth": {
+      "status": "已启用",
+      "version": "5.0",
+      "range": "10米",
+      "profiles": ["A2DP", "HFP", "HID"]
+    },
+    "ethernet": {
+      "status": "已连接",
+      "speed": "1000Mbps",
+      "duplex": "全双工",
+      "cable": "Cat6"
+    },
+    "usb": {
+      "ports": 6,
+      "usb3": 4,
+      "usb2": 2,
+      "typeC": 1
+    },
+    "hdmi": {
+      "inputs": 3,
+      "outputs": 1,
+      "version": "HDMI 2.0",
+      "resolution": "4K@60Hz"
+    },
+    "vga": {
+      "inputs": 1,
+      "resolution": "1920×1080@60Hz"
+    }
+  },
+  "power": {
+    "consumption": "180W",
+    "standby": "0.5W",
+    "voltage": "AC 100-240V",
+    "frequency": "50/60Hz",
+    "powerSaving": true,
+    "autoShutdown": "30分钟无操作"
+  },
+  "environmental": {
+    "operatingTemp": "0°C - 40°C",
+    "storageTemp": "-20°C - 60°C",
+    "humidity": "10% - 90% RH",
+    "altitude": "0 - 3000m",
+    "certification": ["CCC", "CE", "FCC", "RoHS"]
+  },
+  "software": {
+    "os": "希沃白板 OS",
+    "version": "5.2.3",
+    "kernel": "Android 11",
+    "preInstalled": [
+      "希沃白板",
+      "班级优化大师",
+      "希沃授课助手",
+      "希沃管家",
+      "希沃录课"
+    ],
+    "updateChannel": "稳定版",
+    "lastUpdate": "2024-01-10"
+  },
+  "status": {
+    "overall": "正常运行",
+    "temperature": "35°C",
+    "uptime": "72小时",
+    "lastMaintenance": "2024-01-01",
+    "nextMaintenance": "2024-04-01",
+    "errors": [],
+    "warnings": []
   }
 }

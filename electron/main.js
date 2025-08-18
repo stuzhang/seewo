@@ -22,8 +22,16 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, '../public/favicon.svg'),
-    titleBarStyle: 'default',
-    show: false // 先隐藏窗口，等加载完成后再显示
+    frame: false, // 无边框窗口
+    titleBarStyle: 'customButtonsOnHover', // 完全隐藏标题栏按钮（Mac专用）
+    transparent: false, // 透明窗口
+    vibrancy: 'under-window', // macOS毛玻璃效果
+    visualEffectState: 'active',
+    backgroundColor: '#1e40af', // 设置背景色
+    show: false, // 先隐藏窗口，等加载完成后再显示
+    roundedCorners: true, // 圆角窗口
+    shadow: true, // 窗口阴影
+    hasShadow: true
   });
 
   // 窗口准备好后显示
@@ -200,4 +208,35 @@ ipcMain.handle('get-config-file', async (event, configName) => {
     console.error(`Error reading config file ${configName}:`, error);
     throw error;
   }
+});
+
+// 窗口控制IPC处理程序
+ipcMain.handle('window-minimize', () => {
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+  if (focusedWindow) {
+    focusedWindow.minimize();
+  }
+});
+
+ipcMain.handle('window-maximize', () => {
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+  if (focusedWindow) {
+    if (focusedWindow.isMaximized()) {
+      focusedWindow.unmaximize();
+    } else {
+      focusedWindow.maximize();
+    }
+  }
+});
+
+ipcMain.handle('window-close', () => {
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+  if (focusedWindow) {
+    focusedWindow.close();
+  }
+});
+
+ipcMain.handle('window-is-maximized', () => {
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+  return focusedWindow ? focusedWindow.isMaximized() : false;
 });

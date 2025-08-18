@@ -1,52 +1,124 @@
 {
-  "osInfo": {
-    "osVersion": "Windows 11 Pro",
-    "version": "22H2",
-    "kernelVersion": "10.0.22621.2428"
-  },
-  "processor": {
-    "model": "Intel Core i7-12700H",
-    "cores": 12,
-    "baseFrequency": "2.3 GHz",
-    "maxFrequency": "4.7 GHz"
-  },
-  "memory": {
-    "totalCapacity": 16384,
-    "availableMemory": 8192,
-    "memoryType": "DDR4"
-  },
-  "storage": [
-    {
-      "device": "C:",
-      "size": 512000,
-      "type": "SSD",
-      "availableSpace": 256000,
-      "usage": 50
+  "system": {
+    "os": {
+      "platform": "Windows",
+      "distro": "Windows 11",
+      "release": "11",
+      "codename": "22H2",
+      "kernel": "10.0.22621",
+      "arch": "x64",
+      "hostname": "SEEWO-PC",
+      "fqdn": "SEEWO-PC.local",
+      "codepage": "936",
+      "logofile": "windows",
+      "serial": "00330-80000-00000-AA123",
+      "build": "22621",
+      "servicepack": "0.0",
+      "uefi": true
     },
-    {
-      "device": "D:",
-      "size": 1024000,
-      "type": "HDD",
-      "availableSpace": 768000,
-      "usage": 25
-    }
-  ],
-  "networkAdapters": [
-    {
-      "interface": "以太网",
-      "status": "已连接",
-      "ipAddress": "192.168.1.100",
-      "macAddress": "00:1B:44:11:3A:B7"
+    "cpu": {
+      "manufacturer": "Intel",
+      "brand": "英特尔® 酷睿™ i7-12700H",
+      "vendor": "AMD",
+      "family": "23",
+      "model": "8",
+      "stepping": "2",
+      "revision": "",
+      "voltage": "1.35",
+      "speed": 4.7,
+      "speedMin": 2.2,
+      "speedMax": 4.3,
+      "governor": "performance",
+      "cores": 12,
+      "physicalCores": 8,
+      "processors": 1,
+      "socket": "AM4",
+      "flags": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb hw_pstate sme ssbd sev ibpb vmmcall fsgsbase bmi1 avx2 smep bmi2 rdseed adx smap clflushopt sha_ni xsaveopt xsavec xgetbv1 xsaves clzero irperf xsaveerptr arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif overflow_recov succor smca",
+      "virtualization": true,
+      "cache": {
+        "l1d": 32768,
+        "l1i": 65536,
+        "l2": 524288,
+        "l3": 16777216
+      }
     },
-    {
-      "interface": "Wi-Fi",
-      "status": "已连接",
-      "ipAddress": "192.168.1.101",
-      "macAddress": "00:1B:44:11:3A:B8"
+    "memory": {
+      "total": 8559738368,
+      "free": 6106127360,
+      "used": 6253611008,
+      "active": 6253611008,
+      "available": 6106127360,
+      "buffers": 0,
+      "cached": 0,
+      "slab": 0,
+      "buffcache": 0,
+      "swaptotal": 4294967296,
+      "swapused": 0,
+      "swapfree": 4294967296
+    },
+    "disks": [
+      {
+        "device": "固态硬盘",
+        "type": "NTFS",
+        "size": 275011627776,
+        "used": 659611627776,
+        "available": 439900000000,
+        "use": 60.0,
+        "mount": "C:\\"
+      }
+    ],
+    "network": [
+      {
+        "iface": "以太网",
+        "ifaceName": "Ethernet",
+        "ip4": "192.168.1.100",
+        "ip4subnet": "255.255.255.0",
+        "ip6": "fe80::1234:5678:9abc:def0",
+        "ip6subnet": "ffff:ffff:ffff:ffff::",
+        "mac": "00:1B:21:12:34:56",
+        "internal": false,
+        "virtual": false,
+        "operstate": "up",
+        "type": "wired",
+        "duplex": "full",
+        "mtu": 1500,
+        "speed": 1000,
+        "dhcp": true,
+        "dnsSuffix": "local",
+        "ieee8021xAuth": "Not required",
+        "ieee8021xState": "Not authenticated"
+      },
+      {
+        "iface": "WLAN",
+        "ifaceName": "Wi-Fi",
+        "ip4": "192.168.1.101",
+        "ip4subnet": "255.255.255.0",
+        "ip6": "fe80::5678:9abc:def0:1234",
+        "ip6subnet": "ffff:ffff:ffff:ffff::",
+        "mac": "00:1B:21:56:78:90",
+        "internal": false,
+        "virtual": false,
+        "operstate": "up",
+        "type": "wireless",
+        "duplex": "half",
+        "mtu": 1500,
+        "speed": 300,
+        "dhcp": true,
+        "dnsSuffix": "local",
+        "ieee8021xAuth": "Not required",
+        "ieee8021xState": "Not authenticated"
+      }
+    ],
+    "performance": {
+      "cpuUsage": 25.5,
+      "memoryUsage": 53.1,
+      "diskUsage": 60.0,
+      "networkRx": 1024000,
+      "networkTx": 512000,
+      "temperature": 45,
+      "fanSpeed": 1200,
+      "powerState": "运行中",
+      "uptime": 86400
     }
-  ],
-  "systemStatus": {
-    "cpuTemperature": 45,
-    "powerStatus": "交流电源"
   }
 }

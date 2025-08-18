@@ -1,218 +1,123 @@
-# Windows 平台构建指南
+# Windows平台打包说明
 
-本文档详细说明了如何在 Windows 平台上构建希沃触控一体机系统信息显示应用。
+## 概述
 
-## 🚀 GitHub Actions 自动化构建
+本项目已配置GitHub Actions自动化工作流，支持在Windows平台上自动打包Electron应用。
 
-### 触发方式
+## 跨平台兼容性检查结果
 
-1. **手动触发**：在 GitHub 仓库的 Actions 页面手动运行工作流
-2. **自动触发**：推送代码到 `main` 分支时自动构建
-3. **PR 触发**：创建 Pull Request 到 `main` 分支时触发构建验证
+经过代码审查，项目在跨平台兼容性方面表现良好：
 
-### 构建步骤
+### ✅ 兼容性良好的部分
 
-工作流会自动执行以下步骤：
+1. **路径处理**：使用了Node.js的`path`模块进行路径拼接，自动处理不同操作系统的路径分隔符
+2. **文件系统操作**：使用`fs.promises`进行异步文件操作，跨平台兼容
+3. **配置文件读取**：通过`process.resourcesPath`和相对路径正确处理生产环境的资源路径
+4. **平台检测**：在preload.js中提供了平台检测功能（`process.platform`）
+5. **Electron配置**：electron-builder已配置支持Windows、macOS和Linux平台
 
-1. **环境准备**
-   - 使用 Windows 最新版本的 GitHub Runner
-   - 安装 Node.js 18.x
-   - 安装 pnpm 8.x
+### 📋 构建配置
 
-2. **依赖安装**
-   ```bash
-   pnpm install --frozen-lockfile
-   ```
-
-3. **前端构建**
-   ```bash
-   pnpm run build
-   ```
-
-4. **Electron 打包**
-   ```bash
-   pnpm run electron:build
-   ```
-
-5. **产物上传**
-   - 自动上传构建产物到 GitHub Artifacts
-   - 保留 30 天
-
-### 使用方法
-
-1. **查看构建状态**
-   - 访问仓库的 Actions 页面
-   - 查看最新的构建状态和日志
-
-2. **下载构建产物**
-   - 在 Actions 页面找到对应的构建
-   - 下载 `windows-build-{commit-sha}` 压缩包
-   - 解压后获得 Windows 安装包
-
-## 🔧 本地构建
-
-### 环境要求
-
-- **操作系统**: Windows 10 或更高版本
-- **Node.js**: 18.x 或更高版本
-- **包管理器**: pnpm 8.x
-- **Python**: 3.8+ (用于 node-gyp)
-- **Visual Studio Build Tools**: 2019 或更高版本
-
-### 构建步骤
-
-1. **克隆仓库**
-   ```bash
-   git clone https://github.com/stuzhang/seewo.git
-   cd seewo
-   ```
-
-2. **安装依赖**
-   ```bash
-   pnpm install
-   ```
-
-3. **构建前端**
-   ```bash
-   pnpm run build
-   ```
-
-4. **打包 Electron 应用**
-   ```bash
-   pnpm run electron:build
-   ```
-
-### 构建产物
-
-构建完成后，在 `dist-electron` 目录下会生成以下文件：
-
-- `*.exe` - Windows 安装程序
-- `*.msi` - Windows MSI 安装包
-- `*.zip` - 便携版压缩包
-- `*.blockmap` - 增量更新映射文件
-
-## 📦 构建配置
-
-### package.json 配置
+项目的`package.json`已包含完整的Windows构建配置：
 
 ```json
 {
   "build": {
-    "appId": "com.seewo.system-info",
-    "productName": "希沃触控一体机管理系统",
-    "directories": {
-      "output": "dist-electron"
-    },
-    "files": [
-      "dist/**/*",
-      "electron/**/*",
-      "config/**/*"
-    ],
-    "extraResources": [
-      {
-        "from": "config",
-        "to": "config"
-      }
-    ],
     "win": {
       "target": [
         {
           "target": "nsis",
           "arch": ["x64"]
-        },
-        {
-          "target": "msi",
-          "arch": ["x64"]
-        },
-        {
-          "target": "zip",
-          "arch": ["x64"]
         }
-      ],
-      "icon": "public/favicon.ico"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }
 ```
 
-## ⚠️ 注意事项
+## GitHub Actions工作流
 
-### 路径处理
+### 触发条件
 
-- 使用 `path.join()` 而不是字符串拼接
-- 避免硬编码路径分隔符
-- 使用相对路径而不是绝对路径
+- 推送到`main`分支
+- 创建Pull Request到`main`分支
+- 手动触发（workflow_dispatch）
 
-### 文件系统操作
+### 构建步骤
 
-- 使用 `fs.promises` 进行异步文件操作
-- 正确处理文件不存在的情况
-- 使用 try-catch 包装文件操作
+1. **环境准备**：设置Node.js 18和pnpm
+2. **依赖安装**：运行`pnpm install`
+3. **前端构建**：运行`pnpm run build`
+4. **Electron打包**：运行`pnpm run electron:build`
+5. **产物上传**：将生成的.exe和.msi文件上传为GitHub Artifacts
+6. **自动发布**：推送到main分支时自动创建Release
 
-### 配置文件读取
+### 使用方法
 
-- 区分开发环境和生产环境的配置路径
-- 生产环境从 `process.resourcesPath` 读取
-- 开发环境从项目目录读取
+#### 方法1：自动触发
 
-## 🐛 故障排除
+1. 将代码推送到`main`分支
+2. GitHub Actions会自动开始构建
+3. 构建完成后，可在Actions页面下载构建产物
+4. 如果是推送到main分支，会自动创建Release
+
+#### 方法2：手动触发
+
+1. 访问项目的GitHub页面
+2. 点击"Actions"标签
+3. 选择"Build Windows App"工作流
+4. 点击"Run workflow"按钮
+5. 选择分支并点击"Run workflow"
+
+### 本地测试Windows构建
+
+如果需要在本地测试Windows构建（需要Windows环境）：
+
+```bash
+# 安装依赖
+pnpm install
+
+# 构建前端
+pnpm run build
+
+# 仅构建Windows版本
+pnpm run dist:win
+```
+
+## 构建产物
+
+成功构建后会生成以下文件：
+
+- `希沃触控一体机管理系统 Setup 0.0.0.exe` - NSIS安装程序
+- 可能还会生成`.msi`文件（如果配置了）
+
+## 注意事项
+
+1. **代理设置**：如果在中国大陆环境下构建，可能需要配置npm镜像
+2. **依赖下载**：首次构建可能需要较长时间下载Electron二进制文件
+3. **权限问题**：确保GitHub仓库有足够的权限创建Release和上传Artifacts
+4. **存储空间**：构建产物会占用GitHub Actions的存储配额
+
+## 故障排除
 
 ### 常见问题
 
-1. **构建失败：缺少 Python**
-   ```bash
-   npm install --global windows-build-tools
-   ```
+1. **构建失败**：检查依赖是否正确安装，查看Actions日志
+2. **打包失败**：确保所有必要的文件都包含在`files`配置中
+3. **Release创建失败**：检查`GITHUB_TOKEN`权限
 
-2. **构建失败：缺少 Visual Studio Build Tools**
-   - 下载并安装 Visual Studio Build Tools
-   - 确保包含 C++ 构建工具
+### 调试方法
 
-3. **打包失败：权限问题**
-   - 以管理员身份运行命令提示符
-   - 检查防病毒软件是否阻止文件操作
+1. 查看GitHub Actions的详细日志
+2. 在本地Windows环境中复现问题
+3. 检查electron-builder的配置是否正确
 
-4. **应用启动失败：配置文件缺失**
-   - 确保 `config` 目录被正确打包
-   - 检查 `extraResources` 配置
+## 更新日志
 
-### 调试技巧
-
-1. **启用详细日志**
-   ```bash
-   DEBUG=electron-builder pnpm run electron:build
-   ```
-
-2. **检查打包内容**
-   - 解压生成的安装包
-   - 验证文件结构是否正确
-
-3. **测试开发版本**
-   ```bash
-   pnpm run electron:dev
-   ```
-
-## 🔄 持续集成
-
-### 版本管理
-
-- 使用语义化版本号 (Semantic Versioning)
-- 在 `package.json` 中更新版本号
-- 创建 Git 标签触发发布
-
-### 自动发布
-
-- 推送标签时自动创建 GitHub Release
-- 自动上传构建产物到 Release
-- 生成发布说明
-
-## 📚 相关资源
-
-- [Electron Builder 文档](https://www.electron.build/)
-- [GitHub Actions 文档](https://docs.github.com/en/actions)
-- [Node.js 官方文档](https://nodejs.org/docs/)
-- [pnpm 官方文档](https://pnpm.io/)
-
----
-
-如有问题，请在 GitHub Issues 中提出。
+- 2024-01-XX：初始化Windows构建工作流
+- 添加了跨平台兼容性检查
+- 配置了自动化构建和发布流程

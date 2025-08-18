@@ -99,9 +99,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 text-white">
+    <div className="h-full bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 text-white overflow-auto">
       {/* 主要内容区域 */}
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 animate-fadeIn">
         {/* 系统概览 */}
         <div className="mb-8">
           <SystemOverview 
@@ -153,12 +153,12 @@ export default function Home() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">{performance.diskUsage.toFixed(1)}%</div>
-                <div className="text-sm opacity-70">磁盘使用率</div>
+                <div className="text-2xl font-bold">{(performance.networkRx / 1024 / 1024).toFixed(1)}MB/s</div>
+                <div className="text-sm opacity-70">网络下载</div>
                 <div className="w-full bg-white/20 rounded-full h-2 mt-2">
                   <div 
                     className="bg-white h-2 rounded-full transition-all duration-300" 
-                    style={{ width: `${performance.diskUsage}%` }}
+                    style={{ width: `${Math.min((performance.networkRx / 1024 / 1024) * 10, 100)}%` }}
                   />
                 </div>
               </div>

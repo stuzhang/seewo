@@ -1,7 +1,9 @@
 /**
- * API入口文件
- * 用于Vercel部署
+ * Vercel deploy entry handler, for serverless deployment, please don't modify this file
  */
-import app from './server';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import app from './app.js';
 
-export default app;
+export default function handler(req: VercelRequest, res: VercelResponse) {
+  return app(req, res);
+}

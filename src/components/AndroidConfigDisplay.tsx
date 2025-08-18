@@ -1,321 +1,337 @@
-import React, { useState, useEffect } from 'react'
-import { Smartphone, RefreshCw, Settings, Info, Wifi, Battery } from 'lucide-react'
-import { AndroidSystemInfo } from '../types/electron'
-import { formatBytes, formatPercentage } from '../lib/utils'
-import { Loading, ErrorState } from './Empty'
+import { Smartphone, Cpu, HardDrive, MemoryStick, Settings, Shield } from 'lucide-react';
+import type { AndroidConfig, DeviceConfig } from '@/services/configService';
 
-/**
- * Android配置显示组件属性接口
- */
 interface AndroidConfigDisplayProps {
-  /** 自定义类名 */
-  className?: string
+  androidConfig: AndroidConfig | null;
+  deviceConfig: DeviceConfig | null;
 }
 
 /**
- * Android配置显示组件
- * 显示Android设备的详细配置信息
- * @param props - 组件属性
- * @returns JSX元素
+ * 安卓配置显示组件
+ * 显示安卓系统的详细配置信息
  */
-export function AndroidConfigDisplay({ className = '' }: AndroidConfigDisplayProps) {
-  const [androidInfo, setAndroidInfo] = useState<AndroidSystemInfo | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
+export default function AndroidConfigDisplay({ androidConfig, deviceConfig }: AndroidConfigDisplayProps) {
+  /**
+   * 格式化存储大小显示
+   * @param size - 存储大小，可以是数字（字节）或字符串
+   */
+  const formatStorageSize = (size: string | number): string => {
+    // 如果是字符串且已经格式化，直接返回
+    if (typeof size === 'string' && (size.includes('GB') || size.includes('MB'))) {
+      return size;
+    }
+    
+    // 转换为数字（字节数）
+    let bytes: number;
+    if (typeof size === 'number') {
+      bytes = size;
+    } else {
+      bytes = parseInt(size);
+      if (isNaN(bytes)) return size;
+    }
+    
+    // 转换为合适的单位
+    const gb = bytes / (1024 * 1024 * 1024);
+    if (gb >= 1) {
+      return `${gb.toFixed(1)}GB`;
+    }
+    const mb = bytes / (1024 * 1024);
+    return `${mb.toFixed(0)}MB`;
+  };
 
   /**
-   * 获取Android配置信息
+   * 获取安卓版本显示名称
    */
-  const fetchAndroidConfig = async () => {
-    try {
-      setLoading(true)
-      setError(null)
+  const getAndroidVersionName = (version: string): string => {
+    const versionMap: { [key: string]: string } = {
+      '13': 'Android 13 (Tiramisu)',
+      '12': 'Android 12 (Snow Cone)',
+      '11': 'Android 11',
+      '10': 'Android 10',
+      '9': 'Android 9 (Pie)',
+      '8.1': 'Android 8.1 (Oreo)',
+      '8.0': 'Android 8.0 (Oreo)',
+      '7.1': 'Android 7.1 (Nougat)',
+      '7.0': 'Android 7.0 (Nougat)'
+    };
+    return versionMap[version] || `${version}`;
+  };
 
-      // 检查是否在Electron环境中
-      if (window.electronAPI) {
-        const data = await window.electronAPI.getAndroidConfig()
-        setAndroidInfo(data)
-      } else {
-        // Web环境下的模拟数据
-        setAndroidInfo({
-          deviceModel: 'SM-G9980',
-          androidVersion: '13',
-          kernelVersion: '5.10.149-android13-4-00003-g7ce8c8b3b5b5-ab9632507',
-          buildTime: '2023-10-15 14:30:25',
-          serialNumber: 'R58N123ABCD',
-          imei: '860123456789012',
-          macAddress: 'AA:BB:CC:DD:EE:FF',
-          ipAddress: '192.168.1.101',
-          batteryLevel: 85,
-          isCharging: false,
-          storageTotal: 128 * 1024 * 1024 * 1024, // 128GB
-          storageUsed: 64 * 1024 * 1024 * 1024,   // 64GB
-          ramTotal: 8 * 1024 * 1024 * 1024,       // 8GB
-          ramUsed: 4 * 1024 * 1024 * 1024         // 4GB
-        })
-      }
+  /**
+   * 获取连接状态颜色
+   */
+  const getConnectionStatusColor = (): string => {
+    return androidConfig ? 'text-green-400' : 'text-red-400';
+  };
 
-      setLastUpdate(new Date())
-    } catch (err) {
-      console.error('获取Android配置失败:', err)
-      setError(err instanceof Error ? err.message : '获取Android配置失败')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // 组件挂载时获取配置信息
-  useEffect(() => {
-    fetchAndroidConfig()
-  }, [])
-
-  if (loading) {
-    return <Loading className={className} />
-  }
-
-  if (error) {
-    return (
-      <ErrorState
-        title="Android配置获取失败"
-        description={error}
-        onRetry={fetchAndroidConfig}
-        className={className}
-      />
-    )
-  }
-
-  if (!androidInfo) {
-    return (
-      <div className={`text-center py-8 ${className}`}>
-        <Smartphone className="mx-auto text-gray-400 mb-4" size={48} />
-        <p className="text-gray-500 dark:text-gray-400">未找到Android设备信息</p>
-      </div>
-    )
-  }
+  /**
+   * 获取连接状态文本
+   */
+  const getConnectionStatusText = (): string => {
+    return androidConfig ? '已连接' : '未连接';
+  };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* 标题和刷新按钮 */}
-      <div className="flex justify-between items-center">
+    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
-          <Smartphone className="text-green-600 mr-2" size={24} />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Android设备配置
-          </h2>
+          <Smartphone className="w-8 h-8 mr-3" />
+          <h2 className="text-xl font-semibold text-white">安卓系统配置</h2>
         </div>
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            最后更新: {lastUpdate.toLocaleTimeString()}
+        <div className="flex items-center space-x-2">
+          <div className={`w-2 h-2 rounded-full ${androidConfig ? 'bg-green-400' : 'bg-red-400'}`} />
+          <span className={`text-sm font-medium ${getConnectionStatusColor()}`}>
+            {getConnectionStatusText()}
           </span>
-          <button
-            onClick={fetchAndroidConfig}
-            disabled={loading}
-            className="p-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
-            title="刷新Android配置"
-          >
-            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          </button>
         </div>
       </div>
 
-      {/* 设备概览卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* 设备信息 */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">设备型号</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {androidInfo.deviceModel}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Android {androidInfo.androidVersion}
-              </p>
-            </div>
-            <Info className="text-blue-600" size={24} />
-          </div>
-        </div>
-
-        {/* 网络信息 */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">网络连接</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {androidInfo.ipAddress}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                {androidInfo.macAddress}
-              </p>
-            </div>
-            <Wifi className="text-blue-600" size={24} />
-          </div>
-        </div>
-
-        {/* 电池信息 */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">电池状态</p>
-              <p className={`text-lg font-bold ${
-                androidInfo.batteryLevel > 50 ? 'text-green-600' :
-                androidInfo.batteryLevel > 20 ? 'text-yellow-600' : 'text-red-600'
-              }`}>
-                {androidInfo.batteryLevel}%
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {androidInfo.isCharging ? '充电中' : '未充电'}
-              </p>
-            </div>
-            <Battery className={`${
-              androidInfo.batteryLevel > 50 ? 'text-green-600' :
-              androidInfo.batteryLevel > 20 ? 'text-yellow-600' : 'text-red-600'
-            }`} size={24} />
-          </div>
-        </div>
-
-        {/* 存储信息 */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">存储使用</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {formatPercentage(androidInfo.storageUsed, androidInfo.storageTotal)}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {formatBytes(androidInfo.storageUsed)} / {formatBytes(androidInfo.storageTotal)}
-              </p>
-            </div>
-            <Settings className="text-purple-600" size={24} />
-          </div>
-        </div>
-      </div>
-
-      {/* 详细信息 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 系统信息 */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            系统信息
-          </h3>
-          
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">设备型号:</span>
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {androidInfo.deviceModel}
-              </span>
+        {/* 系统基本信息 */}
+        <div className="space-y-4">
+          {/* 安卓版本信息 */}
+          <div className="bg-white/10 rounded-lg p-4">
+            <div className="flex items-center mb-3">
+              <div className="w-10 h-10 bg-green-500/30 rounded-lg flex items-center justify-center mr-3">
+                <Smartphone className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">系统版本</h3>
+                <p className="text-sm text-white/70">安卓系统信息</p>
+              </div>
             </div>
-            
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Android版本:</span>
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {androidInfo.androidVersion}
-              </span>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-white/80">版本</span>
+                <span className="text-white font-medium">
+                  {androidConfig ? getAndroidVersionName(androidConfig.androidVersion) : 'Android 11'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">API级别</span>
+                <span className="text-white font-medium">
+                  {androidConfig?.apiLevel || '30'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">安全补丁</span>
+                <span className="text-white font-medium">
+                  {androidConfig?.securityPatch || '2023-12-01'}
+                </span>
+              </div>
             </div>
-            
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">内核版本:</span>
-              <span className="font-medium text-gray-900 dark:text-gray-100 text-right max-w-xs truncate">
-                {androidInfo.kernelVersion}
-              </span>
+          </div>
+
+          {/* 内核信息 */}
+          <div className="bg-white/10 rounded-lg p-4">
+            <div className="flex items-center mb-3">
+              <div className="w-10 h-10 bg-blue-500/30 rounded-lg flex items-center justify-center mr-3">
+                <Settings className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">内核信息</h3>
+                <p className="text-sm text-white/70">Linux内核版本</p>
+              </div>
             </div>
-            
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">构建时间:</span>
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {androidInfo.buildTime}
-              </span>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-white/80">内核版本</span>
+                <span className="text-white font-medium text-sm">
+                  {androidConfig?.kernelVersion || '5.4.61-android12-9-00001-gd3b362b9b9b9'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">构建时间</span>
+                <span className="text-white font-medium">
+                  {androidConfig?.buildNumber || '2023-12-15'}
+                </span>
+              </div>
             </div>
-            
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">序列号:</span>
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {androidInfo.serialNumber}
-              </span>
+          </div>
+
+          {/* 设备信息 */}
+          <div className="bg-white/10 rounded-lg p-4">
+            <div className="flex items-center mb-3">
+              <div className="w-10 h-10 bg-purple-500/30 rounded-lg flex items-center justify-center mr-3">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">设备信息</h3>
+                <p className="text-sm text-white/70">硬件设备详情</p>
+              </div>
             </div>
-            
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">IMEI:</span>
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {androidInfo.imei}
-              </span>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-white/80">设备型号</span>
+                <span className="text-white font-medium">
+                  {deviceConfig?.device.model || 'Seewo Board'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">制造商</span>
+                <span className="text-white font-medium">
+                  {deviceConfig?.device.brand || 'Seewo'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">产品名称</span>
+                <span className="text-white font-medium">
+                  {androidConfig?.productName || 'SeewoBoard86'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 硬件信息 */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            硬件信息
-          </h3>
-          
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">MAC地址:</span>
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {androidInfo.macAddress}
-              </span>
+        {/* 硬件配置信息 */}
+        <div className="space-y-4">
+          {/* 处理器信息 */}
+          <div className="bg-white/10 rounded-lg p-4">
+            <div className="flex items-center mb-3">
+              <div className="w-10 h-10 bg-orange-500/30 rounded-lg flex items-center justify-center mr-3">
+                <Cpu className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">处理器</h3>
+                <p className="text-sm text-white/70">CPU配置信息</p>
+              </div>
             </div>
-            
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">IP地址:</span>
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {androidInfo.ipAddress}
-              </span>
-            </div>
-            
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">电池电量:</span>
-              <span className={`font-medium ${
-                androidInfo.batteryLevel > 50 ? 'text-green-600' :
-                androidInfo.batteryLevel > 20 ? 'text-yellow-600' : 'text-red-600'
-              }`}>
-                {androidInfo.batteryLevel}% {androidInfo.isCharging ? '(充电中)' : ''}
-              </span>
-            </div>
-            
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-gray-600 dark:text-gray-400">存储空间:</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">
-                  {formatPercentage(androidInfo.storageUsed, androidInfo.storageTotal)}
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-white/80">芯片组</span>
+                <span className="text-white font-medium">
+                  {androidConfig?.hardware || 'Rockchip RK3588'}
                 </span>
               </div>
-              <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-purple-600 h-2 rounded-full"
-                  style={{ width: `${(androidInfo.storageUsed / androidInfo.storageTotal) * 100}%` }}
-                />
-              </div>
-              <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mt-1">
-                <span>{formatBytes(androidInfo.storageUsed)} 已使用</span>
-                <span>{formatBytes(androidInfo.storageTotal)} 总计</span>
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-gray-600 dark:text-gray-400">内存:</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">
-                  {formatPercentage(androidInfo.ramUsed, androidInfo.ramTotal)}
+              <div className="flex justify-between">
+                <span className="text-white/80">架构</span>
+                <span className="text-white font-medium">
+                  ARM64-v8a
                 </span>
               </div>
-              <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full"
-                  style={{ width: `${(androidInfo.ramUsed / androidInfo.ramTotal) * 100}%` }}
-                />
-              </div>
-              <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mt-1">
-                <span>{formatBytes(androidInfo.ramUsed)} 已使用</span>
-                <span>{formatBytes(androidInfo.ramTotal)} 总计</span>
+              <div className="flex justify-between">
+                <span className="text-white/80">核心数</span>
+                <span className="text-white font-medium">
+                  8核
+                </span>
               </div>
             </div>
+          </div>
+
+          {/* 内存信息 */}
+          <div className="bg-white/10 rounded-lg p-4">
+            <div className="flex items-center mb-3">
+              <div className="w-10 h-10 bg-cyan-500/30 rounded-lg flex items-center justify-center mr-3">
+                <MemoryStick className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">内存配置</h3>
+                <p className="text-sm text-white/70">RAM信息</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-white/80">总内存</span>
+                <span className="text-white font-medium">
+                  {androidConfig ? formatStorageSize(androidConfig.totalRAM * 1024 * 1024) : '8GB'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">可用内存</span>
+                <span className="text-white font-medium">
+                  {androidConfig ? formatStorageSize(androidConfig.availableRAM * 1024 * 1024) : '5.2GB'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">内存类型</span>
+                <span className="text-white font-medium">LPDDR4X</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 存储信息 */}
+          <div className="bg-white/10 rounded-lg p-4">
+            <div className="flex items-center mb-3">
+              <div className="w-10 h-10 bg-yellow-500/30 rounded-lg flex items-center justify-center mr-3">
+                <HardDrive className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">存储配置</h3>
+                <p className="text-sm text-white/70">ROM信息</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-white/80">总存储</span>
+                <span className="text-white font-medium">
+                  {androidConfig ? formatStorageSize(androidConfig.totalROM * 1024 * 1024) : '128GB'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">可用存储</span>
+                <span className="text-white font-medium">
+                  {androidConfig ? formatStorageSize(androidConfig.availableROM * 1024 * 1024) : '89.5GB'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">存储类型</span>
+                <span className="text-white font-medium">eMMC 5.1</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 显示和网络 */}
+          <div className="bg-white/10 rounded-lg p-4">
+            <div className="flex items-center mb-3">
+              <div className="w-10 h-10 bg-pink-500/30 rounded-lg flex items-center justify-center mr-3">
+                <Settings className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">其他配置</h3>
+                <p className="text-sm text-white/70">显示和网络</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-white/80">屏幕分辨率</span>
+                <span className="text-white font-medium">
+                  {androidConfig?.display.resolution || '3840×2160'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">屏幕密度</span>
+                <span className="text-white font-medium">
+                  {androidConfig?.display.density ? `${androidConfig.display.density} DPI` : '320 DPI'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">WiFi状态</span>
+                <span className="text-green-400 font-medium">已连接</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/80">蓝牙状态</span>
+                <span className="text-green-400 font-medium">已开启</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 底部状态栏 */}
+      <div className="mt-6 pt-4 border-t border-white/10">
+        <div className="flex justify-between items-center text-sm">
+          <div className="flex items-center space-x-4">
+            <span className="text-white/60">最后更新:</span>
+            <span className="text-white">{new Date().toLocaleString('zh-CN')}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className={`w-2 h-2 rounded-full ${androidConfig ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+            <span className={`text-sm ${getConnectionStatusColor()}`}>
+              {androidConfig ? '实时监控中' : '连接断开'}
+            </span>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

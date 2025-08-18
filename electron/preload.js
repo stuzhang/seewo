@@ -44,6 +44,32 @@ contextBridge.exposeInMainWorld('electronAPI', {
    */
   removeSystemInfoListener: (callback) => {
     ipcRenderer.removeListener('system-info-update', callback);
+  },
+
+  /**
+   * 窗口控制API
+   */
+  windowControls: {
+    /**
+     * 最小化窗口
+     */
+    minimize: () => ipcRenderer.invoke('window-minimize'),
+    
+    /**
+     * 最大化/还原窗口
+     */
+    maximize: () => ipcRenderer.invoke('window-maximize'),
+    
+    /**
+     * 关闭窗口
+     */
+    close: () => ipcRenderer.invoke('window-close'),
+    
+    /**
+     * 检查窗口是否已最大化
+     * @returns {Promise<boolean>} 是否已最大化
+     */
+    isMaximized: () => ipcRenderer.invoke('window-is-maximized')
   }
 });
 
