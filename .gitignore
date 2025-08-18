@@ -159,7 +159,7 @@ Thumbs.db
 *.temp
 
 # Build artifacts
-build/
+
 out/
 
 # Test coverage
@@ -179,4 +179,4 @@ release/
 .pnpm-debug.log*
 
 # Trae AI
-.trae/
+.trae/!/build/
