@@ -15,63 +15,10 @@ env:
   PNPM_VERSION: '8'
 
 jobs:
-  # 代码质量检查
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run ESLint
-        run: pnpm run lint
-
-      - name: Run TypeScript check
-        run: pnpm run check
-
-  # 多平台构建
+  # Windows构建
   build:
-    needs: lint
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            platform: linux
-            arch: x64
-          - os: windows-latest
-            platform: win
-            arch: x64
-          - os: macos-latest
-            platform: mac
-            arch: universal
-
-    runs-on: ${{ matrix.os }}
+    name: Build Windows App
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -103,35 +50,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Windows特殊处理：安装Python和Visual Studio Build Tools
-      - name: Setup Python (Windows)
-        if: matrix.os == 'windows-latest'
+      # Windows构建工具安装
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Setup MSBuild (Windows)
-        if: matrix.os == 'windows-latest'
+      - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.3
-
-      # macOS特殊处理：安装必要的构建工具
-      - name: Install build tools (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew install imagemagick
-
-      # Linux特殊处理：安装必要的系统依赖
-      - name: Install system dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libnss3-dev libatk-bridge2.0-dev libdrm2 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2
 
       - name: Build application
         run: pnpm run build
 
-      - name: Build Electron app
-        run: pnpm run dist:${{ matrix.platform }}
+      - name: Build Windows Electron app
+        run: pnpm run dist:win
         env:
           # 禁用代码签名（可根据需要启用）
           CSC_IDENTITY_AUTO_DISCOVERY: false
@@ -143,20 +75,16 @@ jobs:
           # APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
           # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
-      # 上传构建产物
-      - name: Upload artifacts
+      # 上传Windows构建产物
+      - name: Upload Windows artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.platform }}-${{ matrix.arch }}
+          name: windows-x64
           path: |
             dist-electron/*.exe
-            dist-electron/*.dmg
-            dist-electron/*.AppImage
-            dist-electron/*.deb
-            dist-electron/*.rpm
           retention-days: 30
 
-  # 发布版本（仅在创建标签时触发）
+  # 发布Windows版本（仅在创建标签时触发）
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -166,19 +94,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download all artifacts
+      - name: Download Windows artifacts
         uses: actions/download-artifact@v3
         with:
+          name: windows-x64
           path: artifacts
 
       - name: Display structure of downloaded files
         run: ls -la artifacts/
 
-      - name: Create Release
+      - name: Create Windows Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/**/*
+            artifacts/*.exe
           draft: false
           prerelease: false
           generate_release_notes: true

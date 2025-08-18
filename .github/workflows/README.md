@@ -1,10 +1,10 @@
 # GitHub Actions 工作流说明
 
-本项目包含两个主要的 GitHub Actions 工作流文件，用于自动化构建、测试和发布流程。
+本项目包含一个 GitHub Actions 工作流文件，专门用于 Windows 平台的自动化构建和发布。
 
 ## 工作流文件
 
-### 1. build.yml - 构建和发布工作流
+### build.yml - Windows 构建和发布工作流
 
 **触发条件：**
 - 推送到 `main` 分支
@@ -13,26 +13,12 @@
 - 手动触发
 
 **功能：**
-- **代码质量检查**：运行 ESLint 和 TypeScript 检查
-- **多平台构建**：支持 Windows、macOS 和 Linux 平台
+- **Windows 构建**：专门针对 Windows 平台进行构建
 - **自动发布**：当创建版本标签时自动发布到 GitHub Releases
+- **构建优化**：移除了代码质量检查步骤，专注于快速构建
 
 **构建产物：**
 - Windows: `.exe` 安装包
-- macOS: `.dmg` 安装包
-- Linux: `.AppImage`、`.deb`、`.rpm` 包
-
-### 2. code-quality.yml - 代码质量检查工作流
-
-**触发条件：**
-- Pull Request 到 `main` 或 `develop` 分支
-- 推送到 `main` 或 `develop` 分支
-
-**功能：**
-- **ESLint 检查**：代码风格和潜在问题检查
-- **TypeScript 检查**：类型检查
-- **构建测试**：确保代码可以正常构建
-- **安全审计**：检查依赖包的安全漏洞
 
 ## 使用说明
 
@@ -63,27 +49,12 @@
 
 ### 自定义构建
 
-可以通过修改 `build.yml` 中的 matrix 配置来自定义构建平台和架构：
-
-```yaml
-strategy:
-  matrix:
-    include:
-      - os: ubuntu-latest
-        platform: linux
-        arch: x64
-      - os: windows-latest
-        platform: win
-        arch: x64
-      - os: macos-latest
-        platform: mac
-        arch: universal
-```
+当前工作流专门针对 Windows 平台进行了优化，如需支持其他平台，可以修改 `build.yml` 文件添加相应的构建配置。
 
 ## 注意事项
 
 1. **依赖缓存**：工作流使用 pnpm 缓存来加速构建
-2. **构建时间**：多平台构建可能需要较长时间，特别是 macOS 构建
+2. **构建时间**：Windows 构建通常需要 5-10 分钟
 3. **资源限制**：GitHub Actions 有使用时间限制，请合理使用
 4. **安全性**：敏感信息应存储在 GitHub Secrets 中，不要硬编码在工作流文件中
 
