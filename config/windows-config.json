@@ -2,9 +2,9 @@
   "system": {
     "os": {
       "platform": "Windows",
-      "distro": "Windows 11",
-      "release": "11",
-      "codename": "22H2",
+      "distro": "Windows 10",
+      "release": "10",
+      "codename": "21H2",
       "kernel": "10.0.22621",
       "arch": "x64",
       "hostname": "SEEWO-PC",
